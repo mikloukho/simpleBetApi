@@ -8,8 +8,8 @@ services:
     depends_on:
       - postgres
       - redis
-      - rabbitmq
-      - clickhouse
+#      - rabbitmq
+#      - clickhouse
     networks:
       - app-network
     user: "${UID}:${GID}"
@@ -29,9 +29,9 @@ services:
   postgres:
     image: postgres:15
     environment:
-      - POSTGRES_DB=sports_betting
-      - POSTGRES_USER=sail
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
@@ -40,41 +40,46 @@ services:
       - app-network
   redis:
     image: redis:7.0
+    volumes:
+        - redis_data:/data
     ports:
       - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
     networks:
       - app-network
-  rabbitmq:
-    image: rabbitmq:3.13-management
-    environment:
-      - RABBITMQ_DEFAULT_USER=
-      - RABBITMQ_DEFAULT_PASS=
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    networks:
-      - app-network
-  clickhouse:
-    image: clickhouse/clickhouse-server:24.8
-    volumes:
-      - clickhouse-data:/var/lib/clickhouse
-    ports:
-      - "8123:8123"
-      - "9000:9000"
-    networks:
-      - app-network
-  grafana:
-    image: grafana/grafana:10.2.0
-    volumes:
-      - grafana-data:/var/lib/grafana
-    ports:
-      - "3000:3000"
-    networks:
-      - app-network
+#  rabbitmq:
+#    image: rabbitmq:3.13-management
+#    environment:
+#      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+#      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+#    networks:
+#      - app-network
+#  clickhouse:
+#    image: clickhouse/clickhouse-server:24.8
+#    volumes:
+#      - clickhouse-data:/var/lib/clickhouse
+#    ports:
+#      - "8123:8123"
+#      - "9000:9000"
+#    networks:
+#      - app-network
+#  grafana:
+#    image: grafana/grafana:10.2.0
+#    volumes:
+#      - grafana-data:/var/lib/grafana
+#    ports:
+#      - "3000:3000"
+#    networks:
+#      - app-network
 networks:
   app-network:
     driver: bridge
 volumes:
   postgres-data:
-  clickhouse-data:
-  grafana-data:
+  redis_data:
+      driver: local
+#  clickhouse-data:
+#  grafana-data:

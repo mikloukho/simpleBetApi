@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && docker-php-ext-install pdo pdo_pgsql
 
+RUN pecl install redis && docker-php-ext-enable redis
+
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 WORKDIR /var/www
@@ -14,5 +16,6 @@ COPY . /var/www
 RUN composer install --no-scripts --no-autoloader
 RUN chmod -R 775 storage bootstrap/cache
 RUN chown -R www-data:www-data storage bootstrap/cache
+ENV HOME=/var/www
 
 CMD php-fpm
